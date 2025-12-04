@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Lista de Compras</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        :root {
+            --bg-body: #f5f5fb;
+            --bg-card: #ffffff;
+            --primary: #6366f1;
+            --primary-soft: rgba(99, 102, 241, 0.08);
+            --primary-border: rgba(99, 102, 241, 0.3);
+            --danger: #ef4444;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --radius-lg: 18px;
+            --shadow-soft: 0 12px 30px rgba(15, 23, 42, 0.10);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, sans-serif;
+            background: radial-gradient(circle at top, #e0e7ff, #f5f5fb 40%, #ffffff 70%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+            padding: 12px;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 900px;
+            background: var(--bg-card);
+            border-radius: 24px;
+            box-shadow: var(--shadow-soft);
+            padding: 18px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .app-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge-pill {
+            font-size: 0.70rem;
+            padding: 2px 8px;
+            border-radius: 999px;
+            border: 1px solid var(--primary-border);
+            background: var(--primary-soft);
+            color: var(--primary);
+        }
+
+        .form-card {
+            background: linear-gradient(135deg, rgba(129, 140, 248, 0.06), rgba(236, 252, 203, 0.06));
+            border: 1px solid #e5e7eb;
+            border-radius: var(--radius-lg);
+            padding: 12px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1.3fr 0.9fr auto;
+            gap: 8px;
+        }
+
+        @media (max-width: 640px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-input {
+            border-radius: 999px;
+            border: 1px solid #d1d5db;
+            padding: 8px 12px;
+            outline: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: #fff;
+            border-radius: 999px;
+            padding: 8px 16px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-outline {
+            background: #fff;
+            border: 1px solid #d1d5db;
+            border-radius: 999px;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        .table-card {
+            border: 1px solid #e5e7eb;
+            border-radius: var(--radius-lg);
+            background: #fff;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+
+        thead {
+            background: #f9fafb;
+        }
+
+        th, td {
+            padding: 8px 10px;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f9fafb;
+        }
+
+        tbody tr:hover {
+            background: #eef2ff;
+        }
+    </style>
+</head>
+
+<body>
+<div class="app">
+    <h2 class="app-title">🛒 Lista de compras <span class="badge-pill">LocalStorage</span></h2>
+
+    <section class="form-card">
+        <form id="formArticulo">
+            <div class="form-row">
+                <input id="nombre" class="form-input" placeholder="Artículo..." required />
+                <input id="cantidad" class="form-input" placeholder="Cantidad..." />
+                <button class="btn-primary" id="btnGuardar">Agregar</button>
+            </div>
+            <input type="hidden" id="articuloId" />
+        </form>
+    </section>
+
+    <section class="table-card">
+        <table>
+            <thead>
+                <tr>
+                    <th>Artículo</th>
+                    <th>Cantidad</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="tablaCuerpo"></tbody>
+        </table>
+    </section>
+
+    <button class="btn-outline" id="btnResetLista">Restablecer lista inicial</button>
+</div>
+
+<script>
+    const STORAGE_KEY = "listaCompras";
+    const listaInicial = [
+        { id: 1, nombre: "Pañales", cantidad: "" },
+        { id: 2, nombre: "Papel de baño", cantidad: "" },
+        { id: 3, nombre: "Suavitel", cantidad: "" },
+        { id: 4, nombre: "Espuma para afeitar", cantidad: "" },
+        { id: 5, nombre: "Mamilas", cantidad: "" },
+        { id: 6, nombre: "Calentador de mamilas", cantidad: "" },
+        { id: 7, nombre: "Esterilizador", cantidad: "" },
+        { id: 8, nombre: "Leche", cantidad: "" },
+        { id: 9, nombre: "Toallas femeninas", cantidad: "" },
+        { id: 10, nombre: "Shampoo", cantidad: "" }
+    ];
+
+    let articulos = [];
+
+    function cargarDesdeStorage() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        articulos = raw ? JSON.parse(raw) : [...listaInicial];
+        guardarEnStorage();
+    }
+
+    function guardarEnStorage() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(articulos));
+    }
+
+    function renderTabla() {
+        const tbody = document.getElementById("tablaCuerpo");
+        tbody.innerHTML = "";
+
+        articulos.forEach(item => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${item.nombre}</td>
+                    <td>${item.cantidad || "—"}</td>
+                    <td>
+                        <button class="btn-outline" onclick="editarArticulo(${item.id})">✏️</button>
+                        <button class="btn-outline" onclick="eliminarArticulo(${item.id})">🗑️</button>
+                    </td>
+                </tr>`;
+        });
+    }
+
+    function agregarArticulo(nombre, cantidad) {
+        const id = articulos.length ? Math.max(...articulos.map(x => x.id)) + 1 : 1;
+        articulos.push({ id, nombre, cantidad });
+        guardarEnStorage();
+        renderTabla();
+    }
+
+    function actualizarArticulo(id, nombre, cantidad) {
+        const i = articulos.findIndex(x => x.id === id);
+        articulos[i].nombre = nombre;
+        articulos[i].cantidad = cantidad;
+        guardarEnStorage();
+        renderTabla();
+    }
+
+    function editarArticulo(id) {
+        const item = articulos.find(x => x.id === id);
+        document.getElementById("nombre").value = item.nombre;
+        document.getElementById("cantidad").value = item.cantidad;
+        document.getElementById("articuloId").value = item.id;
+        document.getElementById("btnGuardar").textContent = "Actualizar";
+    }
+
+    function eliminarArticulo(id) {
+        articulos = articulos.filter(x => x.id !== id);
+        guardarEnStorage();
+        renderTabla();
+    }
+
+    function limpiarFormulario() {
+        form.reset();
+        document.getElementById("articuloId").value = "";
+        btnGuardar.textContent = "Agregar";
+    }
+
+    // Eventos
+    document.addEventListener("DOMContentLoaded", () => {
+        cargarDesdeStorage();
+        renderTabla();
+
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const id = document.getElementById("articuloId").value;
+            const nombre = nombreInput.value.trim();
+            const cantidad = cantidadInput.value.trim();
+            id ? actualizarArticulo(+id, nombre, cantidad) : agregarArticulo(nombre, cantidad);
+            limpiarFormulario();
+        });
+
+        document.getElementById("btnResetLista").addEventListener("click", () => {
+            articulos = [...listaInicial];
+            guardarEnStorage();
+            renderTabla();
+        });
+    });
+
+    const form = document.getElementById("formArticulo");
+    const nombreInput = document.getElementById("nombre");
+    const cantidadInput = document.getElementById("cantidad");
+    const btnGuardar = document.getElementById("btnGuardar");
+</script>
+</body>
+</html>
