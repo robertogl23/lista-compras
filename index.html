@@ -4,218 +4,394 @@
     <meta charset="UTF-8" />
     <title>Lista de Compras</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- PWA -->
+    <meta name="theme-color" content="#020617" />
+    <link rel="manifest" href="manifest.webmanifest" />
+
     <style>
         :root {
-            --bg-body-light: #f5f5fb;
-            --bg-card-light: #ffffff;
-            --text-main-light: #111827;
-            --thead-light: #f0f0ff;
-            --td-alt-light: #fafaff;
+            --bg-body: radial-gradient(circle at top, #020617 0%, #020617 35%, #020617 50%, #020617 100%);
+            --bg-card: #020617;
+            --border-soft: #1f2937;
+            --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.75);
 
-            --bg-body-dark: #0c0d10;
-            --bg-card-dark: #1a1c22;
-            --text-main-dark: #e8e8e8;
-            --thead-dark: #1e1f25;
-            --td-alt-dark: #16181e;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
 
             --primary: #6366f1;
-            --primary-soft: rgba(99, 102, 241, 0.08);
+            --primary-soft: rgba(129, 140, 248, 0.12);
             --danger: #ef4444;
-            --text-muted: #6b7280;
-            --radius-lg: 18px;
-            --shadow-soft: 0 12px 30px rgba(15, 23, 42, 0.10);
+
+            --chip-bg: rgba(15, 23, 42, 0.9);
+            --chip-border: #374151;
+
+            --thead-bg: #020617;
+            --row-alt: #020617;
+            --row-hover: #020617;
+
+            --input-bg: #020617;
+            --input-border: #374151;
+            --input-focus: #6366f1;
+
+            --radius-lg: 20px;
         }
 
-        * { box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+        }
 
         body {
             margin: 0;
-            font-family: system-ui, sans-serif;
-            background: var(--bg-body-light);
-            color: var(--text-main-light);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             min-height: 100vh;
             display: flex;
             align-items: stretch;
             justify-content: center;
-            padding: 12px;
-            transition: background .25s, color .25s;
-        }
-
-        body[data-theme="dark"] {
-            background: var(--bg-body-dark);
-            color: var(--text-main-dark);
+            padding: 14px;
+            background: var(--bg-body);
+            color: var(--text-main);
         }
 
         .app {
             width: 100%;
             max-width: 900px;
-            background: var(--bg-card-light);
-            border-radius: 24px;
+            background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.08), transparent 55%),
+                        radial-gradient(circle at top right, rgba(129, 140, 248, 0.18), transparent 55%),
+                        var(--bg-card);
+            border-radius: 28px;
             box-shadow: var(--shadow-soft);
-            padding: 18px 14px;
+            padding: 18px 16px 20px;
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            transition: background .25s;
+            gap: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.12);
         }
 
-        body[data-theme="dark"] .app {
-            background: var(--bg-card-dark);
+        @media (min-width: 768px) {
+            .app {
+                padding: 22px 22px 24px;
+            }
         }
 
-        h2 {
-            font-size: 1.35rem;
-            margin: 0;
+        .header-row {
             display: flex;
             justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .title-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            letter-spacing: -0.03em;
+            display: flex;
             align-items: center;
+            gap: 8px;
         }
 
         .badge-pill {
-            font-size: 0.70rem;
+            font-size: 0.68rem;
+            text-transform: uppercase;
             padding: 2px 8px;
             border-radius: 999px;
-            border: 1px solid var(--primary);
-            background: var(--primary-soft);
-            color: var(--primary);
+            border: 1px solid rgba(129, 140, 248, 0.7);
+            background: rgba(15, 23, 42, 0.9);
+            color: #c7d2fe;
+            letter-spacing: 0.08em;
+        }
+
+        .subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .chips-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .chip {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid var(--chip-border);
+            background: var(--chip-bg);
+            color: #e5e7eb;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .form-card {
-            padding: 12px;
+            padding: 12px 12px 14px;
             border-radius: var(--radius-lg);
-            border: 1px solid #d1d1d1;
+            border: 1px solid var(--border-soft);
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.9));
         }
 
         .form-row {
             display: grid;
-            grid-template-columns: 1fr 0.7fr auto;
+            grid-template-columns: 1.3fr 0.8fr auto;
             gap: 10px;
+            align-items: flex-end;
+        }
+
+        @media (max-width: 640px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .form-label {
+            font-size: 0.78rem;
+            color: var(--text-muted);
         }
 
         .form-input {
             border-radius: 999px;
-            border: 1px solid #d1d5db;
+            border: 1px solid var(--input-border);
+            background: var(--input-bg);
+            color: var(--text-main);
             padding: 8px 12px;
+            font-size: 0.9rem;
             outline: none;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, transform 0.05s ease;
         }
 
-        button {
-            cursor: pointer;
-            border: none;
+        .form-input:focus {
+            border-color: var(--input-focus);
+            box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.7);
+            transform: translateY(-0.5px);
         }
 
-        .btn-primary,
-        .btn-outline,
-        .btn-danger {
+        .btn {
             border-radius: 999px;
-            padding: 8px 10px;
+            padding: 8px 14px;
+            font-size: 0.86rem;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            white-space: nowrap;
         }
 
         .btn-primary {
-            background: var(--primary);
-            color: #fff;
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: #f9fafb;
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.35);
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.05);
+            transform: translateY(-0.5px);
         }
 
         .btn-outline {
-            background: #ffffff;
-            border: 1px solid #d1d5db;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid var(--border-soft);
+            color: #e5e7eb;
         }
 
-        body[data-theme="dark"] .btn-outline {
-            background: #2a2c33;
-            border-color: #3b3e46;
-            color: #e8e8e8;
+        .btn-outline:hover {
+            background: rgba(31, 41, 55, 0.9);
         }
 
         .btn-danger {
-            background: var(--danger);
-            color: #fff;
+            background: rgba(220, 38, 38, 0.9);
+            color: #fef2f2;
+        }
+
+        .btn-danger:hover {
+            background: rgba(248, 113, 113, 0.9);
+        }
+
+        .btn-icon {
+            padding: 6px 10px;
+            font-size: 0.78rem;
         }
 
         .table-card {
             border-radius: var(--radius-lg);
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--border-soft);
             overflow: hidden;
+            background: rgba(15, 23, 42, 0.98);
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            font-size: 0.88rem;
         }
 
         thead {
-            background: var(--thead-light);
+            background: radial-gradient(circle at top, rgba(15, 23, 42, 1), rgba(15, 23, 42, 0.98));
         }
 
-        body[data-theme="dark"] thead {
-            background: var(--thead-dark);
+        th, td {
+            padding: 8px 10px;
+            text-align: left;
         }
 
-        td, th {
-            padding: 8px 12px;
+        th {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #9ca3af;
+        }
+
+        tbody tr {
+            transition: background 0.16s ease, transform 0.05s ease, opacity 0.16s ease;
         }
 
         tbody tr:nth-child(even) {
-            background: var(--td-alt-light);
+            background: rgba(15, 23, 42, 0.98);
         }
 
-        body[data-theme="dark"] tbody tr:nth-child(even) {
-            background: var(--td-alt-dark);
+        tbody tr:nth-child(odd) {
+            background: rgba(15, 23, 42, 0.94);
+        }
+
+        tbody tr:hover {
+            background: rgba(30, 64, 175, 0.35);
+            transform: translateY(-0.3px);
+        }
+
+        td:last-child {
+            white-space: nowrap;
+        }
+
+        .row-comprado {
+            opacity: 0.5;
+        }
+
+        .row-comprado td:nth-child(2),
+        .row-comprado td:nth-child(3) {
+            text-decoration: line-through;
+            text-decoration-thickness: 1px;
+            text-decoration-color: rgba(148, 163, 184, 0.9);
+        }
+
+        .chk-comprado {
+            accent-color: #22c55e;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .footer-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            padding: 2px 2px 0;
+        }
+
+        .tag {
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px dashed rgba(148, 163, 184, 0.7);
+            background: rgba(15, 23, 42, 0.8);
         }
     </style>
 </head>
 <body>
 
 <div class="app">
-    <h2>
-        🛒 Lista de compras
-        <span class="badge-pill">LocalStorage</span>
-    </h2>
-
-    <button id="btnTheme" class="btn-outline">🌙 / ☀️</button>
+    <div class="header-row">
+        <div class="title-group">
+            <h1>🛒 Lista del súper</h1>
+            <div class="subtitle">Marca lo que ya compraste. Todo se guarda en este dispositivo.</div>
+        </div>
+        <div class="chips-row">
+            <span class="chip">PWA</span>
+            <span class="chip">Modo oscuro</span>
+            <span class="chip">Sin conexión</span>
+        </div>
+    </div>
 
     <section class="form-card">
         <form id="formArticulo">
             <div class="form-row">
-                <input id="nombre" class="form-input" placeholder="Artículo..." required />
-                <input id="cantidad" class="form-input" placeholder="Cantidad..." />
-                <button class="btn-primary" id="btnGuardar">Agregar</button>
+                <div class="form-field">
+                    <label class="form-label" for="nombre">Artículo</label>
+                    <input id="nombre" class="form-input" placeholder="Ej. Pañales, Shampoo, Mamilas..." required />
+                </div>
+                <div class="form-field">
+                    <label class="form-label" for="cantidad">Cantidad</label>
+                    <input id="cantidad" class="form-input" placeholder="Ej. 2 paquetes, 1 litro..." />
+                </div>
+                <div class="form-field">
+                    <button class="btn btn-primary" id="btnGuardar" type="submit">
+                        Guardar
+                    </button>
+                </div>
             </div>
             <input type="hidden" id="articuloId" />
         </form>
     </section>
 
     <section class="table-card">
-        <table>
-            <thead>
-                <tr>
-                    <th>Artículo</th>
-                    <th>Cantidad</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody id="tablaCuerpo"></tbody>
-        </table>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Listo</th>
+                        <th>Artículo</th>
+                        <th>Cantidad</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaCuerpo"></tbody>
+            </table>
+        </div>
     </section>
 
-    <button class="btn-outline" id="btnResetLista">Restablecer lista inicial</button>
+    <div class="footer-row">
+        <button class="btn btn-outline" id="btnResetLista">Restablecer lista inicial</button>
+        <span class="tag">Tus datos viven localmente, no se suben a ningún servidor.</span>
+    </div>
 </div>
 
 <script>
     const STORAGE_KEY = "listaCompras";
-    const THEME_KEY = "themeMode";
 
     const listaInicial = [
-        { id: 1, nombre: "Pañales", cantidad: "" },
-        { id: 2, nombre: "Papel de baño", cantidad: "" },
-        { id: 3, nombre: "Suavitel", cantidad: "" },
-        { id: 4, nombre: "Espuma para afeitar", cantidad: "" },
-        { id: 5, nombre: "Mamilas", cantidad: "" },
-        { id: 6, nombre: "Calentador de mamilas", cantidad: "" },
-        { id: 7, nombre: "Esterilizador", cantidad: "" },
-        { id: 8, nombre: "Leche", cantidad: "" },
-        { id: 9, nombre: "Toallas femeninas", cantidad: "" },
-        { id: 10, nombre: "Shampoo", cantidad: "" }
+        { id: 1, nombre: "Pañales", cantidad: "", comprado: false },
+        { id: 2, nombre: "Papel de baño", cantidad: "", comprado: false },
+        { id: 3, nombre: "Suavitel", cantidad: "", comprado: false },
+        { id: 4, nombre: "Espuma para afeitar", cantidad: "", comprado: false },
+        { id: 5, nombre: "Mamilas", cantidad: "", comprado: false },
+        { id: 6, nombre: "Calentador de mamilas", cantidad: "", comprado: false },
+        { id: 7, nombre: "Esterilizador", cantidad: "", comprado: false },
+        { id: 8, nombre: "Leche", cantidad: "", comprado: false },
+        { id: 9, nombre: "Toallas femeninas", cantidad: "", comprado: false },
+        { id: 10, nombre: "Shampoo", cantidad: "", comprado: false }
     ];
 
     let articulos = [];
@@ -226,12 +402,26 @@
     const articuloId = document.getElementById("articuloId");
     const btnGuardar = document.getElementById("btnGuardar");
     const btnReset = document.getElementById("btnResetLista");
-    const switchTheme = document.getElementById("btnTheme");
+    const tbody = document.getElementById("tablaCuerpo");
 
     function cargarDesdeStorage() {
         const raw = localStorage.getItem(STORAGE_KEY);
-        articulos = raw ? JSON.parse(raw) : [...listaInicial];
-        guardarEnStorage();
+        if (!raw) {
+            articulos = [...listaInicial];
+            guardarEnStorage();
+        } else {
+            try {
+                const parsed = JSON.parse(raw);
+                // asegurar que tengan el campo "comprado"
+                articulos = parsed.map(item => ({
+                    ...item,
+                    comprado: typeof item.comprado === "boolean" ? item.comprado : false
+                }));
+            } catch {
+                articulos = [...listaInicial];
+                guardarEnStorage();
+            }
+        }
     }
 
     function guardarEnStorage() {
@@ -239,48 +429,71 @@
     }
 
     function renderTabla() {
-        const tbody = document.getElementById("tablaCuerpo");
         tbody.innerHTML = "";
 
         articulos.forEach(item => {
             const tr = document.createElement("tr");
+            if (item.comprado) tr.classList.add("row-comprado");
+
             tr.innerHTML = `
+                <td>
+                    <input type="checkbox" class="chk-comprado" data-id="${item.id}" ${item.comprado ? "checked" : ""} />
+                </td>
                 <td>${item.nombre}</td>
                 <td>${item.cantidad || "—"}</td>
                 <td>
-                    <button class="btn-outline btn-edit" data-id="${item.id}">✏️</button>
-                    <button class="btn-danger btn-delete" data-id="${item.id}">🗑️</button>
+                    <button class="btn btn-outline btn-icon btn-edit" data-id="${item.id}">Editar</button>
+                    <button class="btn btn-danger btn-icon btn-delete" data-id="${item.id}">Borrar</button>
                 </td>
             `;
+
             tbody.appendChild(tr);
         });
 
-        tbody.querySelectorAll(".btn-delete").forEach(btn => {
-            btn.addEventListener("click", () => eliminarArticulo(+btn.dataset.id));
+        // Eventos de check
+        tbody.querySelectorAll(".chk-comprado").forEach(chk => {
+            chk.addEventListener("change", () => {
+                const id = Number(chk.dataset.id);
+                toggleComprado(id, chk.checked);
+            });
         });
 
+        // Eventos de editar
         tbody.querySelectorAll(".btn-edit").forEach(btn => {
-            btn.addEventListener("click", () => editarArticulo(+btn.dataset.id));
+            btn.addEventListener("click", () => {
+                const id = Number(btn.dataset.id);
+                editarArticulo(id);
+            });
+        });
+
+        // Eventos de borrar
+        tbody.querySelectorAll(".btn-delete").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const id = Number(btn.dataset.id);
+                eliminarArticulo(id);
+            });
         });
     }
 
     function agregarArticulo(nombre, cantidad) {
         const id = articulos.length ? Math.max(...articulos.map(x => x.id)) + 1 : 1;
-        articulos.push({ id, nombre, cantidad });
+        articulos.push({ id, nombre, cantidad, comprado: false });
         guardarEnStorage();
         renderTabla();
     }
 
     function actualizarArticulo(id, nombre, cantidad) {
-        const i = articulos.findIndex(x => x.id === id);
-        articulos[i].nombre = nombre;
-        articulos[i].cantidad = cantidad;
+        const idx = articulos.findIndex(x => x.id === id);
+        if (idx === -1) return;
+        articulos[idx].nombre = nombre;
+        articulos[idx].cantidad = cantidad;
         guardarEnStorage();
         renderTabla();
     }
 
     function editarArticulo(id) {
         const item = articulos.find(x => x.id === id);
+        if (!item) return;
         nombreInput.value = item.nombre;
         cantidadInput.value = item.cantidad;
         articuloId.value = item.id;
@@ -289,6 +502,8 @@
 
     function eliminarArticulo(id) {
         const item = articulos.find(x => x.id === id);
+        if (!item) return;
+
         if (!confirm(`¿Seguro que quieres eliminar "${item.nombre}"?`)) return;
 
         articulos = articulos.filter(x => x.id !== id);
@@ -296,47 +511,58 @@
         renderTabla();
     }
 
+    function toggleComprado(id, value) {
+        const idx = articulos.findIndex(x => x.id === id);
+        if (idx === -1) return;
+        articulos[idx].comprado = !!value;
+        guardarEnStorage();
+        renderTabla();
+    }
+
     function limpiarFormulario() {
         form.reset();
         articuloId.value = "";
-        btnGuardar.textContent = "Agregar";
-    }
-
-    function toggleTheme() {
-        const newTheme = document.body.dataset.theme === "dark" ? "light" : "dark";
-        document.body.dataset.theme = newTheme;
-        localStorage.setItem(THEME_KEY, newTheme);
+        btnGuardar.textContent = "Guardar";
     }
 
     document.addEventListener("DOMContentLoaded", () => {
         cargarDesdeStorage();
         renderTabla();
 
-        const themeStored = localStorage.getItem(THEME_KEY) || "light";
-        document.body.dataset.theme = themeStored;
-
-        form.addEventListener("submit", e => {
+        form.addEventListener("submit", (e) => {
             e.preventDefault();
             const nombre = nombreInput.value.trim();
             const cantidad = cantidadInput.value.trim();
             const id = articuloId.value.trim();
 
-            if (!nombre) return alert("Escribe un artículo.");
+            if (!nombre) {
+                alert("Escribe un artículo.");
+                return;
+            }
 
-            id ? actualizarArticulo(+id, nombre, cantidad)
-               : agregarArticulo(nombre, cantidad);
+            if (id) {
+                actualizarArticulo(Number(id), nombre, cantidad);
+            } else {
+                agregarArticulo(nombre, cantidad);
+            }
 
             limpiarFormulario();
         });
 
         btnReset.addEventListener("click", () => {
-            if (!confirm("¿Restablecer lista original?")) return;
+            if (!confirm("¿Restablecer la lista inicial y borrar cambios?")) return;
             articulos = [...listaInicial];
             guardarEnStorage();
             renderTabla();
+            limpiarFormulario();
         });
 
-        switchTheme.addEventListener("click", toggleTheme);
+        // Registrar SW para PWA
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("./service-worker.js").catch(err => {
+                console.error("Error registrando Service Worker:", err);
+            });
+        }
     });
 </script>
 
