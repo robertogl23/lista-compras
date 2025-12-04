@@ -6,80 +6,90 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
         :root {
-            --bg-body: #f5f5fb;
-            --bg-card: #ffffff;
+            --bg-body-light: #f5f5fb;
+            --bg-card-light: #ffffff;
+            --text-main-light: #111827;
+            --thead-light: #f0f0ff;
+            --td-alt-light: #fafaff;
+
+            --bg-body-dark: #0c0d10;
+            --bg-card-dark: #1a1c22;
+            --text-main-dark: #e8e8e8;
+            --thead-dark: #1e1f25;
+            --td-alt-dark: #16181e;
+
             --primary: #6366f1;
             --primary-soft: rgba(99, 102, 241, 0.08);
-            --primary-border: rgba(99, 102, 241, 0.3);
             --danger: #ef4444;
-            --text-main: #111827;
             --text-muted: #6b7280;
             --radius-lg: 18px;
             --shadow-soft: 0 12px 30px rgba(15, 23, 42, 0.10);
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         body {
             margin: 0;
             font-family: system-ui, sans-serif;
-            background: radial-gradient(circle at top, #e0e7ff, #f5f5fb 40%, #ffffff 70%);
-            color: var(--text-main);
+            background: var(--bg-body-light);
+            color: var(--text-main-light);
             min-height: 100vh;
             display: flex;
             align-items: stretch;
             justify-content: center;
             padding: 12px;
+            transition: background .25s, color .25s;
+        }
+
+        body[data-theme="dark"] {
+            background: var(--bg-body-dark);
+            color: var(--text-main-dark);
         }
 
         .app {
             width: 100%;
             max-width: 900px;
-            background: var(--bg-card);
+            background: var(--bg-card-light);
             border-radius: 24px;
             box-shadow: var(--shadow-soft);
             padding: 18px 14px;
             display: flex;
             flex-direction: column;
             gap: 14px;
+            transition: background .25s;
         }
 
-        .app-title {
+        body[data-theme="dark"] .app {
+            background: var(--bg-card-dark);
+        }
+
+        h2 {
             font-size: 1.35rem;
-            font-weight: 700;
+            margin: 0;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
         }
 
         .badge-pill {
             font-size: 0.70rem;
             padding: 2px 8px;
             border-radius: 999px;
-            border: 1px solid var(--primary-border);
+            border: 1px solid var(--primary);
             background: var(--primary-soft);
             color: var(--primary);
         }
 
         .form-card {
-            background: linear-gradient(135deg, rgba(129, 140, 248, 0.06), rgba(236, 252, 203, 0.06));
-            border: 1px solid #e5e7eb;
-            border-radius: var(--radius-lg);
             padding: 12px;
+            border-radius: var(--radius-lg);
+            border: 1px solid #d1d1d1;
         }
 
         .form-row {
             display: grid;
-            grid-template-columns: 1.3fr 0.9fr auto;
-            gap: 8px;
-        }
-
-        @media (max-width: 640px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
+            grid-template-columns: 1fr 0.7fr auto;
+            gap: 10px;
         }
 
         .form-input {
@@ -89,57 +99,80 @@
             outline: none;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #4f46e5, #6366f1);
-            color: #fff;
-            border-radius: 999px;
-            padding: 8px 16px;
-            border: none;
+        button {
             cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary,
+        .btn-outline,
+        .btn-danger {
+            border-radius: 999px;
+            padding: 8px 10px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
         }
 
         .btn-outline {
-            background: #fff;
+            background: #ffffff;
             border: 1px solid #d1d5db;
-            border-radius: 999px;
-            padding: 8px 12px;
-            cursor: pointer;
+        }
+
+        body[data-theme="dark"] .btn-outline {
+            background: #2a2c33;
+            border-color: #3b3e46;
+            color: #e8e8e8;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: #fff;
         }
 
         .table-card {
-            border: 1px solid #e5e7eb;
             border-radius: var(--radius-lg);
-            background: #fff;
+            border: 1px solid #e5e7eb;
             overflow: hidden;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.88rem;
         }
 
         thead {
-            background: #f9fafb;
+            background: var(--thead-light);
         }
 
-        th, td {
-            padding: 8px 10px;
+        body[data-theme="dark"] thead {
+            background: var(--thead-dark);
+        }
+
+        td, th {
+            padding: 8px 12px;
         }
 
         tbody tr:nth-child(even) {
-            background: #f9fafb;
+            background: var(--td-alt-light);
         }
 
-        tbody tr:hover {
-            background: #eef2ff;
+        body[data-theme="dark"] tbody tr:nth-child(even) {
+            background: var(--td-alt-dark);
         }
     </style>
 </head>
-
 <body>
+
 <div class="app">
-    <h2 class="app-title">🛒 Lista de compras <span class="badge-pill">LocalStorage</span></h2>
+    <h2>
+        🛒 Lista de compras
+        <span class="badge-pill">LocalStorage</span>
+    </h2>
+
+    <button id="btnTheme" class="btn-outline">🌙 / ☀️</button>
 
     <section class="form-card">
         <form id="formArticulo">
@@ -170,6 +203,8 @@
 
 <script>
     const STORAGE_KEY = "listaCompras";
+    const THEME_KEY = "themeMode";
+
     const listaInicial = [
         { id: 1, nombre: "Pañales", cantidad: "" },
         { id: 2, nombre: "Papel de baño", cantidad: "" },
@@ -184,6 +219,14 @@
     ];
 
     let articulos = [];
+
+    const form = document.getElementById("formArticulo");
+    const nombreInput = document.getElementById("nombre");
+    const cantidadInput = document.getElementById("cantidad");
+    const articuloId = document.getElementById("articuloId");
+    const btnGuardar = document.getElementById("btnGuardar");
+    const btnReset = document.getElementById("btnResetLista");
+    const switchTheme = document.getElementById("btnTheme");
 
     function cargarDesdeStorage() {
         const raw = localStorage.getItem(STORAGE_KEY);
@@ -200,15 +243,24 @@
         tbody.innerHTML = "";
 
         articulos.forEach(item => {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${item.nombre}</td>
-                    <td>${item.cantidad || "—"}</td>
-                    <td>
-                        <button class="btn-outline" onclick="editarArticulo(${item.id})">✏️</button>
-                        <button class="btn-outline" onclick="eliminarArticulo(${item.id})">🗑️</button>
-                    </td>
-                </tr>`;
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${item.nombre}</td>
+                <td>${item.cantidad || "—"}</td>
+                <td>
+                    <button class="btn-outline btn-edit" data-id="${item.id}">✏️</button>
+                    <button class="btn-danger btn-delete" data-id="${item.id}">🗑️</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        tbody.querySelectorAll(".btn-delete").forEach(btn => {
+            btn.addEventListener("click", () => eliminarArticulo(+btn.dataset.id));
+        });
+
+        tbody.querySelectorAll(".btn-edit").forEach(btn => {
+            btn.addEventListener("click", () => editarArticulo(+btn.dataset.id));
         });
     }
 
@@ -229,13 +281,16 @@
 
     function editarArticulo(id) {
         const item = articulos.find(x => x.id === id);
-        document.getElementById("nombre").value = item.nombre;
-        document.getElementById("cantidad").value = item.cantidad;
-        document.getElementById("articuloId").value = item.id;
-        document.getElementById("btnGuardar").textContent = "Actualizar";
+        nombreInput.value = item.nombre;
+        cantidadInput.value = item.cantidad;
+        articuloId.value = item.id;
+        btnGuardar.textContent = "Actualizar";
     }
 
     function eliminarArticulo(id) {
+        const item = articulos.find(x => x.id === id);
+        if (!confirm(`¿Seguro que quieres eliminar "${item.nombre}"?`)) return;
+
         articulos = articulos.filter(x => x.id !== id);
         guardarEnStorage();
         renderTabla();
@@ -243,35 +298,47 @@
 
     function limpiarFormulario() {
         form.reset();
-        document.getElementById("articuloId").value = "";
+        articuloId.value = "";
         btnGuardar.textContent = "Agregar";
     }
 
-    // Eventos
+    function toggleTheme() {
+        const newTheme = document.body.dataset.theme === "dark" ? "light" : "dark";
+        document.body.dataset.theme = newTheme;
+        localStorage.setItem(THEME_KEY, newTheme);
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
         cargarDesdeStorage();
         renderTabla();
 
-        form.addEventListener("submit", (e) => {
+        const themeStored = localStorage.getItem(THEME_KEY) || "light";
+        document.body.dataset.theme = themeStored;
+
+        form.addEventListener("submit", e => {
             e.preventDefault();
-            const id = document.getElementById("articuloId").value;
             const nombre = nombreInput.value.trim();
             const cantidad = cantidadInput.value.trim();
-            id ? actualizarArticulo(+id, nombre, cantidad) : agregarArticulo(nombre, cantidad);
+            const id = articuloId.value.trim();
+
+            if (!nombre) return alert("Escribe un artículo.");
+
+            id ? actualizarArticulo(+id, nombre, cantidad)
+               : agregarArticulo(nombre, cantidad);
+
             limpiarFormulario();
         });
 
-        document.getElementById("btnResetLista").addEventListener("click", () => {
+        btnReset.addEventListener("click", () => {
+            if (!confirm("¿Restablecer lista original?")) return;
             articulos = [...listaInicial];
             guardarEnStorage();
             renderTabla();
         });
-    });
 
-    const form = document.getElementById("formArticulo");
-    const nombreInput = document.getElementById("nombre");
-    const cantidadInput = document.getElementById("cantidad");
-    const btnGuardar = document.getElementById("btnGuardar");
+        switchTheme.addEventListener("click", toggleTheme);
+    });
 </script>
+
 </body>
 </html>
